@@ -12,11 +12,11 @@ public interface UserServices {
 
      UserDto addUsr(UserDto user);
 
-     List<UserDto> getAllUser();
+     List<UserDto> getAllUsers();
 
-     Optional<UserDto> getUserById(int id);
+     UserDto getUserById(Integer id);
 
-     UserDto updateUser(UserDto user,int id);
+     UserDto updateUser(UserDto user,Integer id);
 
-     void deleteUser(int id);
+     void deleteUser(Integer id);
 }

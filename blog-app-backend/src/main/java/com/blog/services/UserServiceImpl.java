@@ -1,5 +1,6 @@
 package com.blog.services;
 
+import com.blog.exception.ResourceNotFoundException;
 import com.blog.model.User;
 import com.blog.payload.UserDto;
 import com.blog.repository.UserRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserServices{
@@ -16,34 +18,49 @@ public class UserServiceImpl implements UserServices{
     private UserRepository userRepository;
 
     @Override
-    public UserDto addUsr(UserDto user) {
+    public UserDto addUsr(UserDto userDto) {
 
-        UserDto user1=userRepository.save(user);
-        return user1;
+        User user=this.dtoToUser(userDto);
+        User savedUser=userRepository.save(user);
+        return this.userToDto(savedUser);
     }
 
     @Override
-    public List<UserDto> getAllUser() {
-
-        List<UserDto> users=userRepository.findAll();
-        return users;
+    public List<UserDto> getAllUsers() {
+        List<User> users=this.userRepository.findAll();
+        List<UserDto> userDtos=users.stream().
+                map(user -> this.userToDto(user)).collect(Collectors.toList());
+        return userDtos;
     }
 
     @Override
-    public Optional<UserDto> getUserById(int id) {
-        Optional<UserDto> user=userRepository.findById(id);
-        return user;
+    public UserDto getUserById(Integer id) {
+        User user=this.userRepository.findById(id).
+                orElseThrow(()->new ResourceNotFoundException("user","id",id));
+        return this.userToDto(user);
     }
 
     @Override
-    public UserDto updateUser(UserDto userDto,int id) {
-        return null;
+    public UserDto updateUser(UserDto userDto,Integer id) {
+
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("User","Id",id));
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setAbout(userDto.getAbout());
+
+        User updatedUser=userRepository.save(user);
+        return this.userToDto(updatedUser);
     }
 
     @Override
-    public void deleteUser(int id) {
-        userRepository.deleteById(id);
+    public void deleteUser(Integer id) {
+        User user=this.userRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("user","id",id));
+
+        this.userRepository.delete(user);
     }
+
 
     private User dtoToUser(UserDto userDto){
         User user=new User();

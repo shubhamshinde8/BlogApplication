@@ -13,8 +13,6 @@ public class BlogAppBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BlogAppBackendApplication.class, args);
 
-
-
 	}
 
 }
